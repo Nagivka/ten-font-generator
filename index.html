@@ -116,7 +116,6 @@
             margin-top: 15px;
         }
 
-        /* Стили для кастомных уведомлений (вместо messagebox) */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -170,7 +169,6 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Маппинг русских букв в спецсимволы
         const smallCapsMapping = {
             'А': '𑣦', 'а': '𐔛', 'Б': '𑣧', 'б': '𐔜', 'В': '𑣨', 'в': '𐔝',
             'Г': '𑣩', 'г': '𐔞', 'Д': '𐔀', 'д': '𐔟', 'Е': '𐔁', 'е': '𐔠',
@@ -179,13 +177,12 @@
             'Л': '𐔆', 'л': '𐔥', 'М': '𐔇', 'м': '𐔦', 'Н': '𐔈', 'н': '𐔧',
             'О': '𐔉', 'о': '𐔨', 'П': '𐔊', 'п': '𐔩', 'Р': '𐔋', 'р': '𐔪',
             'С': '𐔌', 'с': '𐔫', 'Т': '𐔍', 'т': '𐔬', 'У': '𐔎', 'у': '𐔭',
-            'Ф': '𐔏', 'ф': '𐔮', 'Х': '𐔐', 'х': '𐔯', 'Ц': '𑔑', 'ц': '𐔰', /* Поправлен один юникод символ Ц для валидности суррогатной пары */
+            'Ф': '𐔏', 'ф': '𐔮', 'Х': '𐔐', 'х': '𐔯', 'Ц': '𑔑', 'ц': '𐔰',
             'Ч': '𐔒', 'ч': '𐔱', 'Ш': '𐔓', 'ш': '𐔲', 'Щ': '𐔔', 'щ': '𐔳',
             'Ъ': '𐔕', 'ъ': '', 'Ы': '𐔖', 'ы': '', 'Ь': '𐔗', 'ь': '',
             'Э': '𐔘', 'э': '', 'Ю': '𐔙', 'ю': '', 'Я': '𐔚', 'я': ''
         };
 
-        // Функция показа уведомлений (замена messagebox)
         function showToast(message, isError = false) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -201,7 +198,6 @@
             }, 2500);
         }
 
-        // Вставка из буфера обмена
         async function pasteFromClipboard() {
             try {
                 const text = await navigator.clipboard.readText();
@@ -215,7 +211,6 @@
             }
         }
 
-        // Копирование в буфер обмена
         async function copyToClipboard() {
             const resultText = document.getElementById('outputText').value;
             if (resultText.trim()) {
@@ -238,7 +233,6 @@
             document.getElementById('outputText').value = '';
         }
 
-        // Основная функция генерации
         function generateSmallCaps() {
             const inputStr = document.getElementById('inputText').value;
             
@@ -248,7 +242,6 @@
             }
             
             let result = '';
-            // Используем Array.from() для корректной работы со строками, содержащими суррогатные пары
             for (const char of inputStr) {
                 result += smallCapsMapping[char] || char;
             }
