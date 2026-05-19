@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEN Font Generator</title>
+    <style>
+        :root {
+            --bg-color: #262626;
+            --dark-gray: #333333;
+            --medium-gray: #4A4A4A;
+            --blue: #007AFF;
+            --light-blue: #5CADFF;
+            --text-color: #ffffff;
+            --gray-text: #8e8e93;
+        }
+
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: var(--bg-color);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--blue);
+            margin: 8px 0 2px 0;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--gray-text);
+            margin-bottom: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        button {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background-color: var(--medium-gray);
+            color: white;
+            padding: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #3A3A3A;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: var(--blue);
+            color: white;
+            padding: 14px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--light-blue);
+        }
+
+        .text-container {
+            background-color: var(--dark-gray);
+            border: 1px solid #555555;
+            border-radius: 20px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            width: 100%;
+            height: 90px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-family: 'Helvetica', Arial, sans-serif;
+            resize: none;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: var(--gray-text);
+            margin-top: 15px;
+        }
+
+        /* Стили для кастомных уведомлений (вместо messagebox) */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            font-size: 14px;
+            border-left: 4px solid var(--blue);
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            border-left-color: #ff3b30;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>NagivGeneric</h1>
+        <div class="subtitle">Генератор Font TEN</div>
+
+        <div class="button-group">
+            <button class="btn-secondary" onclick="pasteFromClipboard()">Вставить текст</button>
+            <button class="btn-secondary" onclick="clearInput()">Очистить</button>
+        </div>
+        <div class="text-container">
+            <textarea id="inputText" placeholder="Введите текст для преобразования..."></textarea>
+        </div>
+
+        <button class="btn-primary" onclick="generateSmallCaps()">Сгенерировать</button>
+
+        <div class="text-container">
+            <textarea id="outputText" readonly placeholder="Результат..."></textarea>
+        </div>
+        <div class="button-group">
+            <button class="btn-secondary" onclick="copyToClipboard()">Копировать результат</button>
+            <button class="btn-secondary" onclick="clearOutput()">Очистить</button>
+        </div>
+
+        <div class="hint">Используйте стандартные Ctrl+C / Ctrl+V для работы с текстом</div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Маппинг русских букв в спецсимволы
+        const smallCapsMapping = {
+            'А': '𑣦', 'а': '𐔛', 'Б': '𑣧', 'б': '𐔜', 'В': '𑣨', 'в': '𐔝',
+            'Г': '𑣩', 'г': '𐔞', 'Д': '𐔀', 'д': '𐔟', 'Е': '𐔁', 'е': '𐔠',
+            'Ё': '𐔁', 'ё': '𐔠', 'Ж': '𐔂', 'ж': '𐔡', 'З': '𐔃', 'з': '𐔢',
+            'И': '𐔄', 'и': '𐔣', 'Й': '𐔄', 'й': '', 'К': '𐔅', 'к': '𐔤',
+            'Л': '𐔆', 'л': '𐔥', 'М': '𐔇', 'м': '𐔦', 'Н': '𐔈', 'н': '𐔧',
+            'О': '𐔉', 'о': '𐔨', 'П': '𐔊', 'п': '𐔩', 'Р': '𐔋', 'р': '𐔪',
+            'С': '𐔌', 'с': '𐔫', 'Т': '𐔍', 'т': '𐔬', 'У': '𐔎', 'у': '𐔭',
+            'Ф': '𐔏', 'ф': '𐔮', 'Х': '𐔐', 'х': '𐔯', 'Ц': '𑔑', 'ц': '𐔰', /* Поправлен один юникод символ Ц для валидности суррогатной пары */
+            'Ч': '𐔒', 'ч': '𐔱', 'Ш': '𐔓', 'ш': '𐔲', 'Щ': '𐔔', 'щ': '𐔳',
+            'Ъ': '𐔕', 'ъ': '', 'Ы': '𐔖', 'ы': '', 'Ь': '𐔗', 'ь': '',
+            'Э': '𐔘', 'э': '', 'Ю': '𐔙', 'ю': '', 'Я': '𐔚', 'я': ''
+        };
+
+        // Функция показа уведомлений (замена messagebox)
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            if (isError) {
+                toast.classList.add('error');
+            } else {
+                toast.classList.remove('error');
+            }
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // Вставка из буфера обмена
+        async function pasteFromClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    document.getElementById('inputText').value = text;
+                } else {
+                    showToast("Буфер обмена пуст", true);
+                }
+            } catch (err) {
+                showToast("Не удалось вставить. Предоставьте доступ к буферу обмена.", true);
+            }
+        }
+
+        // Копирование в буфер обмена
+        async function copyToClipboard() {
+            const resultText = document.getElementById('outputText').value;
+            if (resultText.trim()) {
+                try {
+                    await navigator.clipboard.writeText(resultText);
+                    showToast("Результат скопирован в буфер обмена");
+                } catch (err) {
+                    showToast("Ошибка при копировании", true);
+                }
+            } else {
+                showToast("Нет результата для копирования", true);
+            }
+        }
+
+        function clearInput() {
+            document.getElementById('inputText').value = '';
+        }
+
+        function clearOutput() {
+            document.getElementById('outputText').value = '';
+        }
+
+        // Основная функция генерации
+        function generateSmallCaps() {
+            const inputStr = document.getElementById('inputText').value;
+            
+            if (!inputStr.trim()) {
+                showToast("Введите текст для преобразования", true);
+                return;
+            }
+            
+            let result = '';
+            // Используем Array.from() для корректной работы со строками, содержащими суррогатные пары
+            for (const char of inputStr) {
+                result += smallCapsMapping[char] || char;
+            }
+            
+            document.getElementById('outputText').value = result;
+        }
+    </script>
+</body>
+</html>
